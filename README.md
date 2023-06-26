@@ -12,7 +12,7 @@ The calculate.py script has been tested using the below versions of software:
 - LearnPress version 4.2.2.4
 - LearnPress Assignments version 4.0.4
 - LearnPress Gradebook version 4.0.3
-- WP phpMyAdmin version 5.2.1.02.
+- WP phpMyAdmin version 5.2.1.02
 
 
  # Procedure
