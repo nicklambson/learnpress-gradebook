@@ -80,16 +80,15 @@ for section_course_id, my_sections_df in sections_df.groupby("section_course_id"
     # for each user get the scores for each quiz and assignment for this course
     all_users_results = list()
     for user_id, each_user_items_df in my_user_items_df.groupby("user_id"):
-
         # get the quiz results from user_item_results_df if the user_itm_id is in this user's items
         quiz_results = user_item_results_df[user_item_results_df["user_item_id"].isin(each_user_items_df.index)]
 
         # extract the mark with a regular expression
         quiz_results["user_mark"] = quiz_results["result"].str.extract(pat=r"\"user_mark\":(\d+)")
-        quiz_results = quiz_results.set_index("user_item_id")
         quiz_results = quiz_results.drop("result", axis=1)
         quiz_results = quiz_results.drop_duplicates()
-
+        quiz_results = quiz_results.set_index("user_item_id")
+        
         # get the assignment results for this student
         assignment_results = user_itemmeta_df[user_itemmeta_df.index.isin(each_user_items_df.index)]
         assignment_results = assignment_results.rename(columns={"meta_value": "user_mark"})
