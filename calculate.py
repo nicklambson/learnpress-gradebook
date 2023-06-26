@@ -2,7 +2,6 @@ import json
 import pandas as pd
 from pathlib import Path
 from tkinter import filedialog, Tk
-import re
 
 Tk().withdraw()
 
@@ -17,7 +16,7 @@ RESULT.mkdir(exist_ok=True)
 for f in JSON_FILES.glob("*.json"):
     if "gEV" not in f.stem:
         continue
-    table_name = re.split("_gEV_", f.stem)[-1]
+    table_name = f.stem.split("_gEV_")[-1]
     with open(f, "r", encoding="utf-8") as json_file:
         json_content = json_file.read()
         json_content = json_content.strip(",")
