@@ -1,6 +1,8 @@
 # Overview
  Calculate grades from LearnPress quizzes and assignments. This script intends to overcome limitations with the LearnPress Gradebook plugin UI and csv export, which doesn't even display the scores for all the students enrolled in the class.
 
+![grades_example.png](grades_example.png)
+
  # Prerequisites
  Python 3.6 or higher  
  `pip install pandas`  
