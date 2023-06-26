@@ -24,6 +24,9 @@ The calculate.py script has been tested using the below versions of software:
  
  The script will output one CSV file for each course. Each CSV file will be populated with the username of each student who has a score for at least one of the assignments or quizzes. The CSV file headers consist of the names of the assignments and quizzes.
 
+ # FormatGrades.bas
+ To easily format the CSV files, import the FormatGrades.bas as a macro into Excel, then run it with Ctrl+Shift+G.
+
 
 
 
