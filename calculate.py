@@ -71,9 +71,11 @@ posts_series = posts_df["post_title"]
 for section_course_id, my_sections_df in sections_df.groupby("section_course_id"):
 
     # sort the sections by section order and get the user_items for all users
+    my_sections_df["section_order"] = my_sections_df["section_order"].astype(int)
     my_sections_df = my_sections_df.sort_values("section_order")
     my_section_items_df = section_items_df[section_items_df["section_id"].isin(my_sections_df.index)]
-    my_section_items_df = my_section_items_df.sort_values("item_order")
+    my_section_items_df["item_order"] = my_section_items_df["item_order"].astype(int)
+    my_section_items_df = my_section_items_df.sort_values(["section_id", "item_order"])
     my_columns = my_section_items_df["item_id"].to_list()
     my_user_items_df = user_items_df[user_items_df["item_id"].isin(my_columns)]
     
