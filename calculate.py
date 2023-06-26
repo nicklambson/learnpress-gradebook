@@ -64,8 +64,9 @@ user_itemmeta_df = user_itemmeta_df[["meta_value"]]
 # get the post ids and their titles
 posts = tables["posts"]["data"]
 posts_df = pd.DataFrame(posts)
+posts_df["title_and_id"] = posts_df["post_title"].astype(str) + "-" + posts_df["ID"]
 posts_df = posts_df.set_index("ID")
-posts_series = posts_df["post_title"]
+posts_series = posts_df["title_and_id"]
 
 # iterate over each course
 for section_course_id, my_sections_df in sections_df.groupby("section_course_id"):
