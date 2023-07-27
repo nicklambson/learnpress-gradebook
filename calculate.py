@@ -5,8 +5,6 @@ from tkinter import filedialog, Tk
 
 Tk().withdraw()
 
-pd.set_option('mode.chained_assignment', None)
-
 JSON_FILES = Path(filedialog.askdirectory(title="Select folder of JSON files exported from WordPress"))
 tables = dict()
 
@@ -73,17 +71,32 @@ for section_course_id, my_sections_df in sections_df.groupby("section_course_id"
     # sort the sections by section order and get the user_items for all users
     my_sections_df["section_order"] = my_sections_df["section_order"].astype(int)
     my_sections_df = my_sections_df.sort_values("section_order")
-    my_section_items_df = section_items_df[section_items_df["section_id"].isin(my_sections_df.index)]
+    my_section_items_df = section_items_df[section_items_df["section_id"].isin(my_sections_df.index)].copy()
     my_section_items_df["item_order"] = my_section_items_df["item_order"].astype(int)
     my_section_items_df = my_section_items_df.sort_values(["section_id", "item_order"])
     my_columns = my_section_items_df["item_id"].to_list()
-    my_user_items_df = user_items_df[user_items_df["item_id"].isin(my_columns)]
+    my_user_items_df = user_items_df[user_items_df["item_id"].isin(my_columns)].copy()
     
     # for each user get the scores for each quiz and assignment for this course
+    all_users_completion = list()
     all_users_results = list()
     for user_id, each_user_items_df in my_user_items_df.groupby("user_id"):
+
+        completion_df = each_user_items_df[["item_id", "status"]]
+        completion_df = completion_df.set_index("item_id")
+        completion_df = completion_df.transpose()
+        completion_df["user_id"] = user_id
+
+        for item_id in my_columns:
+            if item_id not in completion_df.keys():
+                completion_df[item_id] = None
+
+        completion_df = completion_df.to_dict(orient="index")
+        completion_df = completion_df["status"]
+        all_users_completion.append(completion_df)
+        
         # get the quiz results from user_item_results_df if the user_itm_id is in this user's items
-        quiz_results = user_item_results_df[user_item_results_df["user_item_id"].isin(each_user_items_df.index)]
+        quiz_results = user_item_results_df[user_item_results_df["user_item_id"].isin(each_user_items_df.index)].copy()
 
         # extract the mark with a regular expression
         quiz_results["user_mark"] = quiz_results["result"].str.extract(pat=r"\"user_mark\":(\d+)")
@@ -92,7 +105,7 @@ for section_course_id, my_sections_df in sections_df.groupby("section_course_id"
         quiz_results = quiz_results.set_index("user_item_id")
         
         # get the assignment results for this student
-        assignment_results = user_itemmeta_df[user_itemmeta_df.index.isin(each_user_items_df.index)]
+        assignment_results = user_itemmeta_df[user_itemmeta_df.index.isin(each_user_items_df.index)].copy()
         assignment_results = assignment_results.rename(columns={"meta_value": "user_mark"})
         assignment_results.index = assignment_results.index.rename("user_item_id")
 
@@ -116,7 +129,9 @@ for section_course_id, my_sections_df in sections_df.groupby("section_course_id"
 
     # create a dataframe for all the results for all the users.
     all_users_results_df = pd.DataFrame(all_users_results)
-    if all_users_results_df.empty:
+    all_users_completion_df = pd.DataFrame(all_users_completion)
+
+    if all_users_results_df.empty or all_users_completion_df.empty:
         continue
 
     all_users_results_df = all_users_results_df.set_index("user_id")
@@ -125,9 +140,22 @@ for section_course_id, my_sections_df in sections_df.groupby("section_course_id"
     all_users_results_df = all_users_results_df.rename(mapper=posts_series, axis=1)
     all_users_results_df = all_users_results_df.rename(mapper=user_id_series, axis=0)
 
+    all_users_completion_df = all_users_completion_df.set_index("user_id")
+    all_users_completion_df = all_users_completion_df[my_columns]
+    # map the id numbers in the column headers and incex to human readable headers and usernames
+    all_users_completion_df = all_users_completion_df.rename(mapper=posts_series, axis=1)
+    all_users_completion_df = all_users_completion_df.rename(mapper=user_id_series, axis=0)
+
     # get the course name and set it as the result filename for a CSV file.
     course_name = posts_series.get(section_course_id)
-    filename = course_name + ".csv"
-    print(f"writing grades to {filename}")
-    filepath = RESULT / filename
-    all_users_results_df.to_csv(filepath, sep="\t", encoding="utf-16")
+    results_filename = course_name + "_results.csv"
+    completion_filename = course_name + "_completion.csv"
+
+    print(f"writing grades to {results_filename}")
+    print(f"writing completion to {completion_filename}")
+
+    results_filepath = RESULT / results_filename
+    all_users_results_df.to_csv(results_filepath, sep="\t", encoding="utf-16")
+
+    completion_filepath = RESULT / completion_filename
+    all_users_completion_df.to_csv(completion_filepath, sep="\t", encoding="utf-16")
