@@ -1,0 +1,72 @@
+{
+    "type": "json_schema",
+    "json_schema": {
+        "name": "writing_error_response",
+        "description": "Detects and categorizes English writing errors, especially for ESL learners.",
+        "strict": true,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "error_type": {
+                                "type": "string",
+                                "description": "High level category of the error",
+                                "enum": [
+                                    "Spelling",
+                                    "Punctuation",
+                                    "Capitalization",
+                                    "Tense",
+                                    "Subject-Verb Agreement",
+                                    "Article Usage",
+                                    "Preposition",
+                                    "Pronoun",
+                                    "Word Order",
+                                    "Parallelism",
+                                    "Grammar (other)",
+                                    "Word Choice",
+                                    "Run-on Sentence",
+                                    "Sentence Fragment",
+                                    "Overly Complex",
+                                    "Cohesion",
+                                    "Literal Translation",
+                                    "Idiomatic Expression",
+                                    "Redundant"
+                                ]
+                            },
+                            "error_subtype": {
+                                "type": "string",
+                                "description": "Optional subcategory for specificity, or leave blank."
+                            },
+                            "error_description": {
+                                "type": "string",
+                                "description": "A description of the error."
+                            },
+                            "severity": {
+                                "type": "string",
+                                "description": "Severity of the error.",
+                                "enum": [
+                                    "neutral",
+                                    "minor",
+                                    "major"
+                                ]
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "error_type",
+                            "error_subtype",
+                            "error_description",
+                            "severity"
+                        ]
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "required": ["errors"]
+        }
+    }
+}
